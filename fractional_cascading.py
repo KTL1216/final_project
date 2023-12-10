@@ -100,7 +100,7 @@ def fc_search(fc_data, target):
     for k in range(len(fc_data)-1, 0, -1):
         if k == len(fc_data) - 1: # O(log n) but only once
             curr_index = binary_search(fc_data[k], target) # O(log n) but only once
-            if curr_index >= len(fc_data[k]): # if the item is bigger than the largest item in the top
+            if curr_index >= len(fc_data[k]): # if the item is bigger than the largest item in the list
                 ans.append(max_len)
                 pass_index = len(fc_data[k-1])-1
             else:
@@ -120,11 +120,11 @@ def fc_search(fc_data, target):
         else:
             curr_index = pass_index
             curr_element = fc_data[k][curr_index]
-            if target > curr_element.val:
+            if target > curr_element.val: # if the item is bigger than the largest item in the list
                 ans.append(max_len)
                 pass_index = len(fc_data[k-1])-1
             else:
-                if curr_index == 0:
+                if curr_index == 0: # if the item is the first thing in the list
                     ans.append(0)
                 else:
                     if fc_data[k][curr_index-1].val >= target:
