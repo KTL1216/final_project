@@ -82,11 +82,12 @@ def binary_search(arr, target):
 
 def contextualize(fc_data, ans, target):
     print("Target value:", target)
+    print(f"Answer array format: {ans}")
     for k in range(len(ans)-1, -1, -1):
-        if len(fc_data[k]) > ans[k] and fc_data[k][ans[k]].val == target:
-            print(f"For array {k}: target with value {target} is found at index {ans[k]}")
+        if ans[k][0]:
+            print(f"For array {k}: target with value {target} is found at index {ans[k][1]}")
         else:
-            print(f"For array {k}: target with value {target} should be inserted at index {ans[k]}")
+            print(f"For array {k}: target with value {target} should be inserted at index {ans[k][1]}")
 
 
 def fc_search(fc_data, target):
@@ -101,21 +102,21 @@ def fc_search(fc_data, target):
         if k == len(fc_data) - 1: # O(log n) but only once
             curr_index = binary_search(fc_data[k], target) # O(log n) but only once
             if curr_index >= len(fc_data[k]): # if the item is bigger than the largest item in the list
-                ans.append(max_len)
+                ans.append((False, max_len))
                 pass_index = len(fc_data[k-1])-1
             else:
                 curr_element = fc_data[k][curr_index]
                 if isinstance(curr_element, Original):
-                    ans.append(curr_element.original_index)
+                    ans.append((curr_element.val==target, curr_element.original_index))
                     if curr_element.next_promoted == -1:
                         pass_index = len(fc_data[k-1])-1
                     else:
                         pass_index = (fc_data[k][curr_element.next_promoted].below_index)
                 else:
                     if curr_element.next_original == -1:
-                        ans.append(max_len)
+                        ans.append((False, max_len))
                     else:
-                        ans.append(fc_data[k][curr_element.next_original].original_index)
+                        ans.append((fc_data[k][curr_element.next_original].val==target, fc_data[k][curr_element.next_original].original_index))
                     pass_index = curr_element.below_index
         else:
             curr_index = pass_index
@@ -125,20 +126,18 @@ def fc_search(fc_data, target):
                 pass_index = len(fc_data[k-1])-1
             else:
                 if curr_index == 0: # if the item is the first thing in the list
-                    ans.append(0)
+                    ans.append((False, 0))
                 else:
                     if fc_data[k][curr_index-1].val >= target:
                         curr_index -= 1
                         curr_element = fc_data[k][curr_index]
-                    else:
-                        ans.append(curr_index)
                     if isinstance(curr_element, Original):
-                        ans.append(curr_element.original_index)
+                        ans.append((curr_element.val == target, curr_element.original_index))
                     else:
                         if curr_element.next_original == -1:
-                            ans.append(max_len)
+                            ans.append((False, max_len))
                         else:
-                            ans.append(fc_data[k][curr_element.next_original].original_index)
+                            ans.append((fc_data[k][curr_element.next_original].val==target, fc_data[k][curr_element.next_original].original_index))
                 if isinstance(curr_element, Original):
                     if curr_element.next_promoted == -1:
                         pass_index = len(fc_data[k-1])-1
@@ -149,15 +148,15 @@ def fc_search(fc_data, target):
     curr_index = pass_index
     curr_element = fc_data[0][curr_index]
     if target > curr_element.val:
-        ans.append(max_len)
+        ans.append((False, max_len))
     else:
         if curr_index == 0:
-            ans.append(0)
+            ans.append((fc_data[0][0].val==target, 0))
         else:
             if fc_data[0][curr_index-1].val >= target:
-                ans.append(curr_index-1)
+                ans.append((fc_data[0][curr_index-1].val==target, curr_index-1))
             else:
-                ans.append(curr_index)
+                ans.append((fc_data[0][curr_index].val==target, curr_index))
     ans = ans[::-1]
     contextualize(fc_data, ans, target)
     return ans
@@ -166,7 +165,7 @@ arrays = [
     [11, 32, 42, 46],
     [13, 20, 39, 92],
     [18, 29, 43, 74],
-    [12, 21, 50, 56]
+    [12, 43, 50, 56]
 ]
 
 arrays2 = [

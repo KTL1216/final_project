@@ -151,13 +151,13 @@ def bt_fc_search(node, max_len, target, pass_index):
         else:
             curr_index = pass_index
         if curr_index == 0:
-            node.search_ans = 0
+            node.search_ans = (node.val[0]==target, 0)
             if node.left is not None:
                 bt_fc_search(node.left, max_len, target, 0)
             elif node.right is not None:
                 bt_fc_search(node.right, max_len, target, 0)
         elif curr_index >= len(node.val): # if the item is bigger than the largest item in the list
-            node.search_ans = max_len
+            node.search_ans = (False, max_len)
             if node.left is not None:
                 pass_index_left = len(node.left.val)-1
                 bt_fc_search(node.left, max_len, target, pass_index_left)
@@ -169,7 +169,7 @@ def bt_fc_search(node, max_len, target, pass_index):
                 curr_index -= 1
             curr_element = node.val[curr_index]
             if isinstance(curr_element, Original):
-                node.search_ans = curr_element.original_index
+                node.search_ans = (curr_element.val==target, curr_element.original_index)
                 if node.left is not None:
                     if curr_element.next_promoted_left == -1:
                         pass_index_left = len(node.left.val)-1
@@ -184,14 +184,14 @@ def bt_fc_search(node, max_len, target, pass_index):
                     bt_fc_search(node.right, max_len, target, pass_index_right)
             elif isinstance(curr_element, Promoted_Left):
                 if curr_element.next_original == -1:
-                    node.search_ans = max_len
+                    node.search_ans = (False, max_len)
                     pass_index_left = len(node.left.val)-1
                     bt_fc_search(node.left, max_len, target, pass_index_left)
                     if node.right is not None:
                         pass_index_right = len(node.right.val)-1
                         bt_fc_search(node.right, max_len, target, pass_index_right)
                 else:
-                    node.search_ans = node.val[curr_element.next_original].original_index
+                    node.search_ans = (node.val[curr_element.next_original].val==target, node.val[curr_element.next_original].original_index)
                     bt_fc_search(node.left, max_len, target, curr_element.below_index)
                     if node.right is not None:
                         if curr_element.next_promoted_right == -1:
@@ -201,14 +201,14 @@ def bt_fc_search(node, max_len, target, pass_index):
                             bt_fc_search(node.right, max_len, target, pass_index_right)
             else:
                 if curr_element.next_original == -1:
-                    node.search_ans = max_len
+                    node.search_ans = (False, max_len)
                     pass_index_right = len(node.right.val)-1
                     bt_fc_search(node.right, max_len, target, pass_index_right)
                     if node.left is not None:
                         pass_index_left = len(node.left.val)-1
                         bt_fc_search(node.left, max_len, target, pass_index_left)
                 else:
-                    node.search_ans = node.val[curr_element.next_original].original_index
+                    node.search_ans = (node.val[curr_element.next_original].val==target, node.val[curr_element.next_original].original_index)
                     bt_fc_search(node.right, max_len, target, curr_element.below_index)
                     if node.left is not None:
                         if curr_element.next_promoted_left == -1:
@@ -231,11 +231,20 @@ leaf_right2 = Node([0,5,6], None, None)
 root2 = Node([1,5,7], leaf_left2, leaf_right2)
 
 print("Following nodes follow preorder traversal ")
-fc_node = build_bt_fc(root)
+preorder_nodes = preorder_traversal(root2)
+for i in range(len(preorder_nodes)):
+    print(f"Node {i}: {preorder_nodes[i].val}")
+
+print("Cascaded nodes")
+fc_node = build_bt_fc(root2)
 arr_of_nodes = preorder_traversal(fc_node)
-target = 24
+target = 5
 print(f"The target integer is {target}")
 bt_fc_search(fc_node, 4, target, -2)
 
 for i in range(len(arr_of_nodes)):
-    print(f"Node {i}: {print_fc_arr(arr_of_nodes[i])} -> target should be inserted at {arr_of_nodes[i].search_ans}")
+    ans =""
+    if arr_of_nodes[i].search_ans[0]:
+        print(f"Node {i}: {print_fc_arr(arr_of_nodes[i])} -> target can be found at {arr_of_nodes[i].search_ans[1]}")
+    else:
+        print(f"Node {i}: {print_fc_arr(arr_of_nodes[i])} -> target should be inserted at {arr_of_nodes[i].search_ans[1]}")
